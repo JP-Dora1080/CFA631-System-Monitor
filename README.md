@@ -107,7 +107,7 @@ Wants=network.target
 
 [Service]
 Type=simple
-User=pi
+User=root
 # 実際のファイルパスに変更してください
 WorkingDirectory=/home/pi/cfa631-monitor
 ExecStart=/home/pi/cfa631-monitor/cfa631_display.bin
