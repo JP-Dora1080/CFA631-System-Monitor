@@ -110,7 +110,7 @@ Type=simple
 User=pi
 # 実際のファイルパスに変更してください
 WorkingDirectory=/home/pi/cfa631-monitor
-ExecStart=/usr/bin/python3 /home/pi/cfa631-monitor/cfa631_display.bin
+ExecStart=/home/pi/cfa631-monitor/cfa631_display.bin
 Restart=always
 RestartSec=5
 StandardOutput=journal
