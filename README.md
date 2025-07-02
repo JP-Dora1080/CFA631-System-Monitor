@@ -17,7 +17,7 @@ for HomeDC Japan
 ```
 .
 ├─ cfa631_display.bin   # メインスクリプト
-└─ config.yml          # 設定ファイル（無ければ自動でデフォルト値）
+└─ config.yml          # 設定ファイル（無ければ自動で生成）
 ```
 
 ### config.yml 例
