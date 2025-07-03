@@ -1,171 +1,77 @@
-# CFA631 System Monitor v1.0-beta  
-for HomeDC Japan  
+# CFA631 LCD Tools Collection
+for HomeDC Japan
 
-> Crystalfontz 20×2 LCD（CFA631-USB）に  
-> ホスト情報／システム情報をリアルタイム表示するソフトウェア 
+> Crystalfontz 20×2 LCD（CFA631-USB）用の包括的なツールセット
 
-## ✨ 特長
-* 1行目  
-  * `HomeDC Japan - ホスト名` を自動スクロール表示  
-* 2行目  
-  * CPU使用率 / CPU温度 → メモリ使用率 → IPアドレスをサイクルで表示
-* `config.yml` でスクロール速度・切替間隔・バックライトなどを簡単設定  
-* 終了（Ctrl + C）時に 1行目を設定したテキスト、2行目を空白にする
+## 📦 ツール構成
 
-## 🔧 ファイル構成
+このリポジトリには、CFA631 LCDを活用するための2つの異なるツールが含まれています：
 
-```
-.
-├─ cfa631_display.bin   # メインスクリプト
-└─ config.yml          # 設定ファイル（無ければ自動で生成）
-```
+### 🔧 Simple版 - 設定ツール
+**ファイル**: `cfa631_display_simple.bin` (simple-v1.1)
 
-### config.yml 例
+**用途**: 電源投入時の固定表示設定
 
-```yaml
-# CFA631 Display Configuration
-display:
-  line1:
-    text: "HomeDC Japan"  # 1行目の固定テキスト
-    scroll_speed: 0.1     # スクロール間隔 [s]
-  line2:
-    cycle_interval: 3.0   # 2行目の情報切り替え周期 [s]
+**特徴**:
+- 設定ファイル（`config.yml`）ベースの簡単設定
+- 1行目・2行目に固定テキストを表示
+- EEPROM保存で電源投入時に自動復元
+- 一度設定すれば継続的に同じ内容を表示
 
-system:
-  port: "/dev/ttyUSB0"    # CFA631 が刺さるデバイス
-  baudrate: 115200        # デフォルト115200
-  backlight: 100          # 0–100 %
-```
+**適用場面**:
+- サーバー名やシステム名の固定表示
+- ネットワーク機器の識別表示
+- 組込みシステムの状態表示
+- 設定後は放置で運用したい場合
 
-## 🚀 使い方
+### 📊 Full版 - 監視ツール
+**ファイル**: `cfa631_display.bin` (v1.1)
 
-1. スクリプトに実行権を付与  
-   ```bash
-   chmod +x cfa631_display.bin
-   ```
+**用途**: リアルタイムシステム監視
 
-2. デバイス名を確認  
-   ```bash
-   ls /dev/ttyUSB*
-   # または
-   dmesg | grep tty
-   ```
+**特徴**:
+- CPU使用率・温度、メモリ使用率、IPアドレスの動的表示
+- キーパッド操作による手動情報切り替え
+- 自動サイクル表示モード
+- スクロール表示対応
+- 常時プログラム実行が必要
 
-3. 実行  
-   ```bash
-   ./cfa631_display.bin
-   ```
+**適用場面**:
+- サーバーのリアルタイム監視
+- システムパフォーマンス確認
+- 運用中のシステム状態把握
+- インタラクティブな情報表示
 
-   起動すると以下のようなバナーが表示されます。
+## 🎯 使い分けガイド
 
-```
-╔══════════════════════════════════════════════════════════╗
-║              CFA631 System Monitor v1.0-beta             ║
-║                   for HomeDC Japan                       ║
-╠══════════════════════════════════════════════════════════╣
-║  作成者    : Veulx                                        ║
-║  バージョン: 1.0-beta                                      ║
-║  作成日    : 2025-07-01                                   ║
-║  説明      : CFA631 LCD用システム監視ツール                  ║
-╚══════════════════════════════════════════════════════════╝
-⚙️  設定ファイルを読み込み中...
-=== 設定情報 ===
-📝 1行目テキスト: HomeDC Japan
-⏱️  スクロール速度: 0.1秒
-🔄 2行目切り替え間隔: 3.0秒
-🔌 シリアルポート: /dev/ttyUSB0
-📡 ボーレート: 115200
-💡 バックライト: 100%
+### Simple版を選ぶべき場合
+- ✅ 固定的な情報表示で十分
+- ✅ 設定後は放置運用したい
+- ✅ システムリソースを節約したい
+- ✅ 電源投入時の自動表示が重要
+- ✅ 一度設定すれば変更頻度が低い
 
-🔗 CFA631に接続中...
-```
+### Full版を選ぶべき場合
+- ✅ リアルタイムな情報表示が必要
+- ✅ システム監視が主目的
+- ✅ キーパッド操作による切り替えが欲しい
+- ✅ 動的な情報更新が重要
+- ✅ 常時プログラム実行が可能
 
-## 🛑 終了方法
-`Ctrl + C` で停止。  
-LCD には  
-```
-HomeDC Japan
+## 📋 共通要件
 
-```
-のみが残るため、次回起動時に前回の文字列が残りません。
+- **ハードウェア**: Crystalfontz CFA631-USB LCD
+- **OS**: Linux系OS（Raspberry Pi推奨）
+- **権限**: シリアルポートアクセス権限
 
-## OS起動時に自動で実行する方法（systemdサービス）
+## 🔗 詳細情報
 
-### 1. サービスファイルの作成
+各ツールの詳細な使用方法、設定項目、トラブルシューティングについては、それぞれのディレクトリ内の `README.md` をご参照ください。
 
-```bash
-sudo nano /etc/systemd/system/cfa631-monitor.service
-```
+- **Simple版詳細**: [simple/README.md](simple/README.md)
+- **Full版詳細**: [full/README.md](full/README.md)
 
-以下の内容を記述してください：
+## 📄 ライセンス
 
-```ini
-[Unit]
-Description=CFA631 System Monitor for HomeDC Japan
-After=network.target
-Wants=network.target
-
-[Service]
-Type=simple
-User=root
-# 実際のファイルパスに変更してください
-WorkingDirectory=/home/pi/cfa631-monitor
-ExecStart=/home/pi/cfa631-monitor/cfa631_display.bin
-Restart=always
-RestartSec=5
-StandardOutput=journal
-StandardError=journal
-
-[Install]
-WantedBy=multi-user.target
-```
-
-### 2. サービスの有効化と開始
-
-```bash
-# サービスファイルを再読み込み
-sudo systemctl daemon-reload
-
-# サービスを有効化（起動時に自動実行）
-sudo systemctl enable cfa631-monitor.service
-
-# サービスを開始
-sudo systemctl start cfa631-monitor.service
-
-# 状態確認
-sudo systemctl status cfa631-monitor.service
-```
-
-### 3. ログの確認
-
-```bash
-# リアルタイムログ表示
-sudo journalctl -u cfa631-monitor.service -f
-
-# 過去のログ表示
-sudo journalctl -u cfa631-monitor.service
-```
-
-### 4. サービス管理コマンド
-
-```bash
-# サービス停止
-sudo systemctl stop cfa631-monitor.service
-
-# サービス再起動
-sudo systemctl restart cfa631-monitor.service
-
-# 自動起動を無効化
-sudo systemctl disable cfa631-monitor.service
-```
-
-> **注意**: `WorkingDirectory` と `ExecStart` のパスは、実際にファイルを配置した場所に合わせて変更してください。
-
-この設定により、OS起動時に自動的にCFA631 System Monitorが起動し、異常終了時には自動的に再起動されます。
-
-## 💡 トラブルシューティング
-| 症状 | 対処 |
-|------|------|
-| LCD が無反応 | `dmesg | grep tty` でデバイス名を確認し、`config.yml` の `port` を合わせる |
-| Permission denied | `sudo usermod -aG dialout $USER` 後ログインし直し |
-| 文字化け | LCD は ASCII 20 文字×2 行。全角や UTF-8 は「?」に置換されます |
+このプロジェクトはHomeDC Japan向けに作成されたツールセットです。
+再配布を禁止とします。
