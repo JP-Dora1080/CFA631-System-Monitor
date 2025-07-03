@@ -1,22 +1,21 @@
-# CFA631 System Monitor v1.0-beta  
-for HomeDC Japan  
+# CFA631 LCD Setting System simple-v1.1
+for HomeDC Japan
 
-> Crystalfontz 20×2 LCD（CFA631-USB）に  
-> ホスト情報／システム情報をリアルタイム表示するソフトウェア 
+> Crystalfontz 20×2 LCD（CFA631-USB）の電源投入時表示を  
+> 設定ファイルベースで簡単に設定するツール
 
 ## ✨ 特長
-* 1行目  
-  * `HomeDC Japan - ホスト名` を自動スクロール表示  
-* 2行目  
-  * CPU使用率 / CPU温度 → メモリ使用率 → IPアドレスをサイクルで表示
-* `config.yml` でスクロール速度・切替間隔・バックライトなどを簡単設定  
-* 終了（Ctrl + C）時に 1行目を設定したテキスト、2行目を空白にする
+* **設定ファイルベース**: `config.yml` で表示内容を簡単設定
+* **EEPROM保存**: 設定内容を不揮発性メモリに保存
+* **電源投入時復元**: 次回電源投入時に自動的に設定内容を表示
+* **自動設定ファイル生成**: 設定ファイルがない場合は自動生成
+* **リブート機能**: 設定確認のためのシステムリブート機能
 
 ## 🔧 ファイル構成
 
 ```
 .
-├─ cfa631_display.bin   # メインスクリプト
+├─ cfa631_display_simple.bin    # メインスクリプト
 └─ config.yml          # 設定ファイル（無ければ自動で生成）
 ```
 
@@ -26,53 +25,57 @@ for HomeDC Japan
 # CFA631 Display Configuration
 display:
   line1:
-    text: "HomeDC Japan"  # 1行目の固定テキスト
-    scroll_speed: 0.1     # スクロール間隔 [s]
+    text: 'Default Line1'    # 1行目に表示するテキスト
   line2:
-    cycle_interval: 3.0   # 2行目の情報切り替え周期 [s]
+    text: 'Default Line2'    # 2行目に表示するテキスト
 
 system:
-  port: "/dev/ttyUSB0"    # CFA631 が刺さるデバイス
-  baudrate: 115200        # デフォルト115200
-  backlight: 100          # 0–100 %
+  port: '/dev/ttyUSB0'       # CFA631 が刺さるデバイス
+  baudrate: 115200           # デフォルト115200
+  backlight: 100             # 0–100 %
 ```
 
 ## 🚀 使い方
 
-1. スクリプトに実行権を付与  
+1. **スクリプトに実行権を付与**  
    ```bash
-   chmod +x cfa631_display.bin
+   chmod +x cfa631_display_simple.bin
    ```
 
-2. デバイス名を確認  
+3. **デバイス名を確認**  
    ```bash
    ls /dev/ttyUSB*
    # または
    dmesg | grep tty
    ```
 
-3. 実行  
+4. **設定ファイルの編集**
    ```bash
-   ./cfa631_display.bin
+   nano config.yml
+   ```
+   表示したいテキストを設定してください。
+
+5. **実行**  
+   ```bash
+   ./cfa631_display_simple.bin
    ```
 
-   起動すると以下のようなバナーが表示されます。
+   起動すると以下のようなバナーが表示されます：
 
 ```
 ╔══════════════════════════════════════════════════════════╗
-║              CFA631 System Monitor v1.0-beta             ║
+║         CFA631 LCD Setting System simple-v1.1            ║
 ║                   for HomeDC Japan                       ║
 ╠══════════════════════════════════════════════════════════╣
-║  作成者    : Veulx                                        ║
-║  バージョン: 1.0-beta                                      ║
-║  作成日    : 2025-07-01                                   ║
-║  説明      : CFA631 LCD用システム監視ツール                  ║
+║  作成者    : Veulx                                       ║
+║  バージョン: simple-v1.1                                 ║
+║  作成日    : 2025-07-02                                  ║
+║  説明      : CFA631 LCD用システム監視ツール              ║
 ╚══════════════════════════════════════════════════════════╝
 ⚙️  設定ファイルを読み込み中...
 === 設定情報 ===
-📝 1行目テキスト: HomeDC Japan
-⏱️  スクロール速度: 0.1秒
-🔄 2行目切り替え間隔: 3.0秒
+📝 1行目テキスト: Default Line1
+📝 2行目テキスト: Default Line2
 🔌 シリアルポート: /dev/ttyUSB0
 📡 ボーレート: 115200
 💡 バックライト: 100%
@@ -80,92 +83,119 @@ system:
 🔗 CFA631に接続中...
 ```
 
-## 🛑 終了方法
-`Ctrl + C` で停止。  
-LCD には  
-```
-HomeDC Japan
+## 🔄 プログラムの動作
 
-```
-のみが残るため、次回起動時に前回の文字列が残りません。
+1. **設定ファイル読み込み**
+   - `config.yml` が存在しない場合は自動生成
+   - 設定内容を画面に表示
 
-## OS起動時に自動で実行する方法（systemdサービス）
+2. **CFA631接続**
+   - 指定されたシリアルポートに接続
+   - 通信パラメータを設定
 
-### 1. サービスファイルの作成
+3. **表示設定**
+   - バックライト設定
+   - ディスプレイクリア
+   - 1行目・2行目にテキスト表示
 
-```bash
-sudo nano /etc/systemd/system/cfa631-monitor.service
-```
+4. **EEPROM保存**
+   - 現在の表示状態を電源投入時の状態として保存
+   - 次回電源投入時に自動復元
 
-以下の内容を記述してください：
+5. **リブート確認**
+   - オプションでシステムリブートして設定確認
 
-```ini
-[Unit]
-Description=CFA631 System Monitor for HomeDC Japan
-After=network.target
-Wants=network.target
+## 📋 設定項目詳細
 
-[Service]
-Type=simple
-User=root
-# 実際のファイルパスに変更してください
-WorkingDirectory=/home/pi/cfa631-monitor
-ExecStart=/home/pi/cfa631-monitor/cfa631_display.bin
-Restart=always
-RestartSec=5
-StandardOutput=journal
-StandardError=journal
+### display セクション
+| 項目 | 説明 | デフォルト値 |
+|------|------|-------------|
+| `line1.text` | 1行目表示テキスト | `'Default Line1'` |
+| `line2.text` | 2行目表示テキスト | `'Default Line2'` |
 
-[Install]
-WantedBy=multi-user.target
-```
+### system セクション
+| 項目 | 説明 | デフォルト値 |
+|------|------|-------------|
+| `port` | シリアルポート | `'/dev/ttyUSB0'` |
+| `baudrate` | ボーレート | `115200` |
+| `backlight` | バックライト明度（0-100%） | `100` |
 
-### 2. サービスの有効化と開始
+## 💡 使用例
 
-```bash
-# サービスファイルを再読み込み
-sudo systemctl daemon-reload
+### 例1: 基本的な表示設定
+```yaml
+display:
+  line1:
+    text: 'HomeDC Japan'
+  line2:
+    text: 'Server Status OK'
 
-# サービスを有効化（起動時に自動実行）
-sudo systemctl enable cfa631-monitor.service
-
-# サービスを開始
-sudo systemctl start cfa631-monitor.service
-
-# 状態確認
-sudo systemctl status cfa631-monitor.service
+system:
+  port: '/dev/ttyUSB0'
+  baudrate: 115200
+  backlight: 80
 ```
 
-### 3. ログの確認
+### 例2: サーバー情報表示
+```yaml
+display:
+  line1:
+    text: 'Web Server'
+  line2:
+    text: 'Running on Port 80'
 
-```bash
-# リアルタイムログ表示
-sudo journalctl -u cfa631-monitor.service -f
-
-# 過去のログ表示
-sudo journalctl -u cfa631-monitor.service
+system:
+  port: '/dev/ttyUSB1'
+  baudrate: 115200
+  backlight: 100
 ```
 
-### 4. サービス管理コマンド
+## 🛠️ 機能詳細
 
-```bash
-# サービス停止
-sudo systemctl stop cfa631-monitor.service
+### EEPROM保存機能
+- `store_current_state_as_boot_state()`: 現在の表示状態を電源投入時の状態として保存
+- 電源を切っても設定が保持される
+- 次回電源投入時に自動的に同じ内容が表示される
 
-# サービス再起動
-sudo systemctl restart cfa631-monitor.service
+### リブート機能
+- `reboot()`: CFA631システムをリブート
+- 設定が正しく保存されているかの確認に使用
+- マニュアル仕様に準拠した安全なリブート
 
-# 自動起動を無効化
-sudo systemctl disable cfa631-monitor.service
-```
-
-> **注意**: `WorkingDirectory` と `ExecStart` のパスは、実際にファイルを配置した場所に合わせて変更してください。
-
-この設定により、OS起動時に自動的にCFA631 System Monitorが起動し、異常終了時には自動的に再起動されます。
+### 自動設定ファイル生成
+- 初回実行時に `config.yml` が自動生成される
+- デフォルト値が設定済み
+- すぐに使用開始可能
 
 ## 💡 トラブルシューティング
+
 | 症状 | 対処 |
 |------|------|
-| LCD が無反応 | `dmesg | grep tty` でデバイス名を確認し、`config.yml` の `port` を合わせる |
+| LCD が無反応 | `dmesg \| grep tty` でデバイス名を確認し、`config.yml` の `port` を変更 |
 | Permission denied | `sudo usermod -aG dialout $USER` 後ログインし直し |
-| 文字化け | LCD は ASCII 20 文字×2 行。全角や UTF-8 は「?」に置換されます |
+| 設定ファイル読み込みエラー | YAML形式が正しいか確認（インデントに注意） |
+| 文字化け | ASCII文字のみ対応。全角文字は「?」に置換される |
+| EEPROM保存失敗 | 書き込み完了まで十分な時間を確保（1.5秒待機） |
+
+## 🔄 バージョン履歴
+
+### simple-v1.1 (2025-07-02)
+- 初回リリース
+- 設定ファイルベースの表示設定
+- EEPROM保存機能
+- 自動設定ファイル生成
+- システムリブート機能
+
+## 📝 注意事項
+
+- **文字制限**: 各行最大20文字（ASCII文字のみ）
+- **EEPROM書き込み**: 頻繁な書き込みは避けてください
+- **電源投入時復元**: 設定後は電源を切っても内容が保持されます
+- **リブート機能**: 設定確認以外では使用を控えてください
+
+## 🎯 用途例
+
+- **サーバー状態表示**: サーバー名とステータス
+- **ネットワーク機器**: 機器名とIP情報
+- **組込みシステム**: システム名とバージョン
+- **監視システム**: 監視対象名と状態
